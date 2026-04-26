@@ -1,28 +1,28 @@
-def main():
-    all_hits = []
+import os
+import requests
 
-    for keyword in KEYWORDS:
-        print(f"Searching: {keyword}")
-        try:
-            hits = search_shopee(keyword)
-            all_hits.extend(hits)
-        except Exception as e:
-            print(f"Search failed for {keyword}: {e}")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-    if not all_hits:
-        print("No matching MacBook found.")
+
+def send_telegram(message: str):
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        print("Telegram env not set. Message:")
+        print(message)
         return
 
-    lines = ["找到可能符合的 MacBook 16G："]
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+    }
 
-    for item in all_hits:
-        lines.append("")
-        lines.append(item["title"])
-        lines.append(item["price"])
-        lines.append(item["url"])
+    response = requests.post(url, json=payload, timeout=20)
+    response.raise_for_status()
 
-    message = "\n".join(lines)
-    send_telegram(message)
+
+def main():
+    send_telegram("✅ 測試成功！你的通知系統正常 🚀")
 
 
 if __name__ == "__main__":
